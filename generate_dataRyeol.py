@@ -32,7 +32,7 @@ def load_wl_tabular_type(
     df_smp_subm = pd.read_csv('C:/Everydata/competition_data/sample_submission.csv')
     tgt_cols = list(df_smp_subm)[1:]
     
-    # Check elements of selc_cols are string
+    # Check elements of      selc_cols are string
     if selc_cols is not None:
         for col in selc_cols:
             if type(col) != str:
