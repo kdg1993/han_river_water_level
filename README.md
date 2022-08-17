@@ -3,7 +3,7 @@ Han River Water Level Prediction AI Competition for  Flood Safety of Paldang Dam
 
 ---
 ## Experiment log
-* Submission date : 2022-08-11 14:43:25
+### Submission date : 2022-08-11 14:43:25
 * Model : Sklearn's RandomForestRegressor
 * Dataset
   * Dimension : 2D(tabular) | 44 columns
@@ -17,9 +17,8 @@ Han River Water Level Prediction AI Competition for  Flood Safety of Paldang Dam
   * Public score : 4.219 (RMSE/R^2)
 * Experiment review
   * The score is not low enough. However, it is hard to widen the past time range for giving the model more data
-
-
-* Submission date : 2022-08-13 23:07:29
+---
+### Submission date : 2022-08-13 23:07:29
 * Model : LightGBM Regressor
 * Dataset
   * Dimension : 2D(tabular) | 50 columns
@@ -34,8 +33,8 @@ Han River Water Level Prediction AI Competition for  Flood Safety of Paldang Dam
 * Experiment review
   * LightGBM was worse than random forest in both validation and public score but speed was much faster
   * Due to the fast speed, hyperparameter tuning was done enough. Thus, more data seems to be needed to overcome the low scores.
-
-* Submission date : 2022-08-17 16:16:56	
+---
+### Submission date : 2022-08-17 16:16:56	
 * Model : XGBoostRandomForestRegressor
 * Dataset
   * Dimension : 2D(tabular) | 66 columns
