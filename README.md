@@ -15,6 +15,10 @@ Han River Water Level Prediction AI Competition for  Flood Safety of Paldang Dam
 * Score
   * Validation score : around 4.27 (RMSE/R^2)
   * Public score : 4.219 (RMSE/R^2)
+* Strategy
+  * Random forest could be robust for the noisy data
+  * Features started with 'fw' show a similar temporal pattern to the target
+  * Among the four 'fw' featuers, only two features show a small number of nan in both train and test period
 * Experiment review
   * The score is not low enough. However, it is hard to widen the past time range for giving the model more data
 ---
@@ -30,6 +34,10 @@ Han River Water Level Prediction AI Competition for  Flood Safety of Paldang Dam
 * Score
   * Validation score : around 4.75 (RMSE/R^2)
   * Public score : 5.425 (RMSE/R^2)
+* Strategy
+  * Boosting algorithms usually show high accuracy when good quality data is given
+  * LightGBM is much quicker than RandomForest. Thus, hyperparameter tuning has a lot more range and chance
+  * Since LightGBM is fast, we can use a bigger dataset (wider range of past time windows)
 * Experiment review
   * LightGBM was worse than random forest in both validation and public score but speed was much faster
   * Due to the fast speed, hyperparameter tuning was done enough. Thus, more data seems to be needed to overcome the low scores.
@@ -51,6 +59,10 @@ Han River Water Level Prediction AI Competition for  Flood Safety of Paldang Dam
 * Score
   * Validation score : around 3.3177 (RMSE/R^2)
   * Public score : 3.5764 (RMSE/R^2)
+* Strategy
+  * RandomForest was better than LightGBM
+  * XGBoost algorithms can handle missing values without any preprocessing
+    * Thus, it can make it feature fw_1018662 that has many missing points in test set
 * Experiment review
   * Unlike sklearn's random forest, public score was higher than validation score
     * Suspected reason : Missing ratio of column fw_1018662 is higher in X_test than X_train and X_val 
