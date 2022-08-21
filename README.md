@@ -47,7 +47,7 @@ Han River Water Level Prediction AI Competition for  Flood Safety of Paldang Dam
 * Dataset
   * Dimension : 2D(tabular) | 66 columns
   * Consider t ~ t-21(unit time) | best among 9, 12, 15, 18, 21
-  * Selected features
+  * Selected features (3)
     * 'fw_1018683', 'fw_1019630' because of its less missing point in test time range
     * Consider 'fw_1018662' because xgboost algorithm can handle missing value automatically 
   * Temporal range : 2012, 2013, 2016, 2017, 2018, 2020, 2022 (Selected by features' variance)
@@ -68,3 +68,27 @@ Han River Water Level Prediction AI Competition for  Flood Safety of Paldang Dam
     * Suspected reason : Missing ratio of column fw_1018662 is higher in X_test than X_train and X_val 
   * More data always works even with the missing values
   * XGBoost algorithm can handle the missing value quite well
+---
+### Submission date : 2022-08-18 23:16:04
+* Model : XGBoostRandomForestRegressor
+* Dataset
+  * Dimension : 2D(tabular) | 117 columns
+  * Consider t ~ t-12(unit time) | best among 6, 12, 18
+  * Selected features (9)
+    * All features in water level data except one fw feature that has a lot of missing
+    * Consider 'fw_1018662' because xgboost algorithm can handle missing value automatically 
+  * Temporal range : 2012, 2013, 2016, 2017, 2018, 2020, 2022 (Selected by features' variance)
+  * Note
+    * Did not remove instances that have nan in X (due to the algorithm)
+    * Remove instance when there is nan in y
+* Target
+  * Four classes of y for t+1
+* Score
+  * Validation score : around 2.1 (RMSE/R^2)
+  * Public score : 4.0094 (RMSE/R^2)
+* Strategy
+  * Features in water level data which are not fw_ have a small number of missing values. Although their temporal patterns are not similar to the targets but could be informative for the model
+  * RandomForest feature sampling might effective for a large number of features
+* Experiment review
+  * Validation and Public scores indicate overfitting
+  * Careless feature addition was counterproductive
