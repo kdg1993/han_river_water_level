@@ -92,3 +92,75 @@ Han River Water Level Prediction AI Competition for  Flood Safety of Paldang Dam
 * Experiment review
   * Validation and Public scores indicate overfitting
   * Careless feature addition was counterproductive
+---
+### Submission date : 2022-08-21 19:42:42
+* Model : XGBoostRandomForestRegressor
+* Dataset
+  * Dimension : 2D(tabular) | 65 columns
+  * Consider t ~ t-12(unit time) | best among 6, 12
+  * Selected features (5)
+    * All features in water level data except one fw feature that has a lot of missing
+    * Consider 'fw_1018662' because xgboost algorithm can handle missing value automatically
+    * Based on Spearman's correlation, features 'inf', 'tototf' showed relatively higher values with target. Thus, we expected these features have enough information to guess target 
+  * Temporal range : 2012, 2013, 2016, 2017, 2018, 2020, 2022 (Selected by features' variance)
+  * Note
+    * Did not remove instances that have nan in X (due to the algorithm)
+    * Remove instance when there is nan in y
+* Target
+  * Four classes of y for t+1
+* Score
+  * Validation score : around 2.850 (RMSE/R^2)
+  * Public score : 3.8271 (RMSE/R^2)
+* Strategy
+  * Based on Spearman's correlation, features 'inf', 'tototf' showed relatively higher values with target. Thus, we expected these features have enough information to guess target
+* Experiment review
+  * Overfitting is suspected
+  * Hard to infer the reason of overfit. Monotonic relation might be too simple to overcome overfit?
+---
+### Submission date : 2022-08-22 00:31:09
+* Model : XGBoostRandomForestRegressor
+* Dataset
+  * Dimension : 2D(tabular) | 49 columns
+  * Consider t ~ t-6(unit time) | best among 6
+  * Selected features (7)
+    * All features in water level data except one fw feature that has a lot of missing
+    * Consider 'fw_1018662' because xgboost algorithm can handle missing value automatically
+    * Based on three fw_ features, add the other features from the water level dataset except 'inf', 'tototf' that might be related to overfitting
+  * Temporal range : 2012, 2013, 2016, 2017, 2018, 2020, 2022 (Selected by features' variance)
+  * Note
+    * Did not remove instances that have nan in X (due to the algorithm)
+    * Remove instance when there is nan in y
+* Target
+  * Four classes of y for t+1
+* Score
+  * Validation score : around 2.6 (RMSE/R^2)
+  * Public score : 4.1245 (RMSE/R^2)
+* Strategy
+  * Features 'inf', 'tototf' which were selected based on the decision with Spearman's correlation caused overfitting. If it indicates simple monotonic relation causes overfit then features that show less monotonic relation might be useful to add 
+* Experiment review
+  * More overfitting then add 'inf', 'tototf'
+  * Except for the 'fw' features, features from the water level dataset caused overfitting
+  * If simple feature selection is not working, changing a model or handling missing values better might be a way
+---
+### Submission date : 2022-08-22 23:51:26
+* Model : ExtraTreeRegressor
+* Dataset
+  * Dimension : 2D(tabular) | 50 columns
+  * Consider t ~ t-12(unit time) | best among 6, 12
+  * Selected features (2)
+    * All features in water level data except one fw feature that has a lot of missing
+    * Use only two 'fw' features that has few missing in train and no missing in test
+  * Temporal range : 2012, 2013, 2016, 2017, 2018, 2020, 2022 (Selected by features' variance)
+  * Note
+    * No implementation for handling missing value
+    * Remove instance when there is nan in y
+* Target
+  * Four classes of y for t+1
+* Score
+  * Validation score : around 4.65 (RMSE/R^2)
+  * Public score : 4.4191 (RMSE/R^2)
+* Strategy
+  * ExtraTreeRegressor assign more randomness than Vanilla RandomForestRegressor and it might 
+* Experiment review
+  * Not show a sign of overfitting
+  * Slightly worse than Vanilla RF in Sklearn for both validation and public. However, the different scores might be a clue to the significantly different model structures of ETR, which makes it worth trying more
