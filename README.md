@@ -148,7 +148,6 @@ Han River Water Level Prediction AI Competition for  Flood Safety of Paldang Dam
   * Dimension : 2D(tabular) | 50 columns
   * Consider t ~ t-12(unit time) | best among 6, 12
   * Selected features (2)
-    * All features in water level data except one fw feature that has a lot of missing
     * Use only two 'fw' features that has few missing in train and no missing in test
   * Temporal range : 2012, 2013, 2016, 2017, 2018, 2020, 2022 (Selected by features' variance)
   * Note
@@ -160,7 +159,53 @@ Han River Water Level Prediction AI Competition for  Flood Safety of Paldang Dam
   * Validation score : around 4.65 (RMSE/R^2)
   * Public score : 4.4191 (RMSE/R^2)
 * Strategy
-  * ExtraTreeRegressor assign more randomness than Vanilla RandomForestRegressor and it might 
+  * ExtraTreeRegressor assign more randomness than Vanilla RandomForestRegressor and it might be better than vanilla RF
 * Experiment review
   * Not show a sign of overfitting
   * Slightly worse than Vanilla RF in Sklearn for both validation and public. However, the different scores might be a clue to the significantly different model structures of ETR, which makes it worth trying more
+---
+### Submission date : 2022-08-25 23:35:10
+* Model : ExtraTreeRegressor
+* Dataset
+  * Dimension : 2D(tabular) | 63 columns
+  * Consider t ~ t-6(unit time) | best among 6
+  * Selected features (9)
+    * All features in water level data except one fw feature that has a lot of missing
+  * Temporal range : 2012 ~ 2022 (Selected all)
+  * Note
+    * Fill missing every missing value as -9999
+    * Remove instance when there is nan in y
+* Target
+  * Four classes of y for t+1
+* Score
+  * Validation score : around 2.18 (RMSE/R^2)
+  * Public score : 3.7479 (RMSE/R^2)
+* Strategy
+  * ETR's randomness might be a key to overcoming the overfitting that RF showed with all features
+  * Fill missing by an extreme valued integer is simple but has no contradict 
+* Experiment review
+  * Overfitting is suspected
+  * The gap between validation and public score is slightly better than the case of XGBRandomForest with all features, but hard to deny overfitting
+---
+### Submission date : 2022-08-26 21:33:48
+* Model : LightGBM Regressor
+* Dataset
+  * Dimension : 2D(tabular) | 117 columns
+  * Consider t ~ t-12(unit time) | best among 6, 12
+  * Selected features (9)
+    * All features in water level data except one fw feature that has a lot of missing
+  * Temporal range : 2012 ~ 2022 (Selected all)
+  * Note
+    * Fill missing every missing value as -9999
+    * Remove instance when there is nan in y
+* Target
+  * Four classes of y for t+1
+* Score
+  * Validation score : around 2.99 (RMSE/R^2)
+  * Public score : 5.2867 (RMSE/R^2)
+* Strategy
+  * LightGBM's fast speed can make it possible to search hyperparameters for more times than RF
+  * Fill missing values with simple int(-9999) making more features usable with LightGBM 
+* Experiment review
+  * Overfitting is suspected
+  * LightGBM is known to tend to overfit easily if data is small, which is a suspected reason of overfit in this case
