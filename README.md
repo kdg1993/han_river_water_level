@@ -209,3 +209,55 @@ Han River Water Level Prediction AI Competition for  Flood Safety of Paldang Dam
 * Experiment review
   * Overfitting is suspected
   * LightGBM is known to tend to overfit easily if data is small, which is a suspected reason of overfit in this case
+---
+### Submission date : 2022-08-27 19:19:35 [Final best]
+* Model : XGBoostRandomForestRegressor
+* Dataset
+  * Dimension : 2D(tabular) | 57 columns
+  * Consider t ~ t-18(unit time) | best among 1, 6, 12, 18
+  * Selected features (3)
+    * 'fw_1018683', 'fw_1019630' because of its less missing point in test time range
+    * Consider 'fw_1018662' because xgboost algorithm can handle missing value automatically 
+  * Temporal range : 2012 ~ 2022 (Selected all)
+  * Note
+    * Fill missing every missing value as -9999
+    * Remove instance when there is nan in y
+* Target
+  * Four classes of y for t+1
+* Score
+  * Validation score : around 3.08 (RMSE/R^2)
+  * Public score : 3.5233 (RMSE/R^2)
+* Strategy
+  * Fill missing values with simple int(-9999). It implicitly orders the model not to use the automatical missing value handling algorithm 
+* Experiment review
+  * Final best (slightly better than previous best)
+  * Hard to determine whether the slightly score increase was due to the temporal widening of the dataset (selected year -> every year) or explicit missing value filling
+  * The thing is that the validation score is hard to believe
+---
+### Submission date : 2022-08-28 23:28:04
+* Model : Sklearn's RandomForestRegressor
+* Dataset
+  * Dimension : 2D(tabular) | 63 columns
+  * Consider t ~ t-6(unit time) | best among 6
+  * Selected features (9)
+    * 'fw_1018683', 'fw_1019630' because of its less missing point in test time range
+    * Consider 'fw_1018662' because xgboost algorithm can handle missing value automatically 
+  * Temporal range : 2012, 2013, 2016, 2017, 2018, 2020, 2022 (Selected by features' variance)
+    * Due to the memory limitation
+  * Note
+    * Fill missing every missing value as -9999
+    * Remove instance when there is nan in y
+* Target
+  * Four classes of y for t+1
+* Score
+  * Validation score : around 2.7 (RMSE/R^2)
+  * Public score : 4.0718 (RMSE/R^2)
+* Strategy
+  * Fill missing values with simple int(-9999) for using sklearn model
+  * Simple 4-fold validation (test set ratio 0.25) for more reliable validation score
+  * Sklearn's vanilla RF's parameters are intuitive and easy-to-understand
+* Experiment review
+  * Overfitting is suspected
+  * K-fold validation seems not better than simple split
+  * Validation strategy might need temporal consideration
+  * Using all features might be a crucial reason for raising overfitting
