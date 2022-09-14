@@ -240,8 +240,7 @@ Han River Water Level Prediction AI Competition for  Flood Safety of Paldang Dam
   * Dimension : 2D(tabular) | 63 columns
   * Consider t ~ t-6(unit time) | best among 6
   * Selected features (9)
-    * 'fw_1018683', 'fw_1019630' because of its less missing point in test time range
-    * Consider 'fw_1018662' because xgboost algorithm can handle missing value automatically 
+    * Consider every feature of waterfall dataset
   * Temporal range : 2012, 2013, 2016, 2017, 2018, 2020, 2022 (Selected by features' variance)
     * Due to the memory limitation
   * Note
@@ -261,3 +260,32 @@ Han River Water Level Prediction AI Competition for  Flood Safety of Paldang Dam
   * K-fold validation seems not better than simple split
   * Validation strategy might need temporal consideration
   * Using all features might be a crucial reason for raising overfitting
+---
+### Submission date : 2022-08-29 02:37:54
+* Model : ExtraTreeRegressor
+* Dataset
+  * Dimension : 2D(tabular) | 63 columns
+  * Consider t ~ t-6(unit time) | best among 6
+  * Selected features (9)
+    * Consider every feature of waterfall dataset
+  * Temporal range : 2012, 2013, 2016, 2017, 2018, 2020, 2022 (Selected by features' variance)
+    * Due to the memory limitation
+  * Note
+    * Fill missing every missing value as -9999
+    * Remove instance when there is nan in y
+* Target
+  * Four classes of y for t+1
+* Score
+  * Validation score : around 2.43 (RMSE/R^2)
+  * Public score : 3.9897 (RMSE/R^2)
+* Strategy
+  * Fill missing values with simple int(-9999) for using sklearn model
+  * Simple 4-fold validation (test set ratio 0.25) for more reliable validation score
+  * ExtraTreeRegressor is faster than vanilla RandomForest 
+* Experiment review
+  * Overfitting is suspected
+  * K-fold validation seems not better than simple split AGAIN
+  * Validation-Public score looks similar to the Sklearn's RandomForest
+  * Validation strategy might need temporal consideration
+  * Using all features might be a crucial reason for raising overfitting
+  * Structural differences between tree-based models maybe not be the key. Probably the data has limited information to overcome the current score. Thus, extra data could be a solution
