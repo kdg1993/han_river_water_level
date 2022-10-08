@@ -11,6 +11,75 @@ from sklearn.metrics import mean_squared_error, r2_score
 from sklearn.multioutput import MultiOutputRegressor
 
 # Functions
+def objectiveLGBM_kfold(trial: Trial, X_tr, y_tr, X_val, y_val):
+    params = {
+        'boosting_type': trial.suggest_categorical(
+            'boosting_type', ['gbdt', 'dart', 'goss']),
+        'num_leaves': trial.suggest_int('num_leaves', 2, 100),
+        'max_depth': trial.suggest_int('max_depth', 1, 100),
+        'learning_rate': trial.suggest_float('learning_rate', 0.001, 1),
+        'subsample': trial.suggest_float('subsample', 0.3, 1),
+        'colsample_bytree': trial.suggest_float('colsample_bytree', 0.3, 1),
+        'reg_alpha': trial.suggest_float('reg_alpha', 0, 1),
+        'reg_lambda': trial.suggest_float('reg_lambda', 0, 1),
+        'n_jobs': trial.suggest_categorical('n_jobs', [cpu_use]),
+        'random_state': trial.suggest_categorical('random_state', [42]),
+        }
+
+    model = MultiOutputRegressor(
+        LGBMRegressor(**params)
+        )
+
+    # Concat X, y redefine X_tr due to the memory
+    X = pd.concat([X_tr, X_val], axis=0)
+    y = pd.concat([y_tr, y_val], axis=0)
+
+    del X_tr, X_val, y_tr, y_val # due to the memory
+
+    # Calculate KFold mean score
+    kfold_scores = []
+
+    kf = KFold(n_splits=4) # Split 4 because data seems enough and get large val size
+    kf.get_n_splits(X)
+    for tr_idx, val_idx in kf.split(X):
+        X_tr_temp, X_val_temp = X.iloc[tr_idx], X.iloc[val_idx]
+        y_tr_temp, y_val_temp = y.iloc[tr_idx], y.iloc[val_idx]  
+
+        model_fitted = model.fit(X_tr_temp, y_tr_temp)
+
+        r2_temp = r2_score(y_val_temp, model_fitted.predict(X_val_temp))
+        rmse_temp = mean_squared_error(y_val_temp, model_fitted.predict(X_val_temp))**0.5
+    
+        if r2_temp < 0:
+            r2_temp = 1e-10
+
+        score_temp = rmse_temp/r2_temp
+        kfold_scores.append(score_temp)
+
+    return np.mean(kfold_scores)
+
+
+def get_lgbm_optuna_kfold(X_tr, y_tr, X_val, y_val, n_trials):
+    study = optuna.create_study(
+        study_name='LightGBM_params_opt_by_kfold',
+        direction='minimize',
+        sampler=TPESampler(seed=42),
+        )
+    
+    study.optimize(lambda trial: objectiveLGBM_kfold(trial, X_tr, y_tr, X_val, y_val),
+                   n_trials=n_trials,
+                   )
+    
+    best_mdl = MultiOutputRegressor(
+        LGBMRegressor(**study.best_params)
+        ).fit(
+        pd.concat([X_tr, X_val], axis=0),
+        pd.concat([y_tr, y_val], axis=0),
+        )
+    
+    return best_mdl, study
+
+
 def objectiveRF_kfold(trial: Trial, X_tr, y_tr, X_val, y_val):
     params = {
         'n_estimators': trial.suggest_categorical('n_estimators', [100]),
@@ -431,7 +500,6 @@ if __name__=='__main__':
     from datetime import datetime
     from lightgbm import LGBMRegressor
     from xgboost import XGBRFRegressor
-    
     # Log start time
     total_run_time_start = time.time()
     
@@ -447,22 +515,22 @@ if __name__=='__main__':
     cpu_use = round(2*cpu_count()/3)
     optuna.logging.set_verbosity(2)
     
-    model_nm = 'etr_kfold' # rf, lgbm, xgbrf, etr, xgbrf_na_fill, etr_kfold, rf_kfold
+    model_nm = 'lgbm_kfold' # rf, lgbm, xgbrf, etr, xgbrf_na_fill, etr_kfold, rf_kfold, lgbm_kfold
     
     save_submission = False
     print(f'\nSave submission is [{save_submission}]\n')
         
     # Hyperparameter search
-    N_TRIALS = 30
+    N_TRIALS = 100
    
     SELC_YEAR = [2012, 2013, 2016, 2017, 2018, 2020, 2022]
     SELC_COLS = [
-        'swl',
-        'inf', 
-        'sfw',
-        'ecpc',
-        'tototf',
-        'tide_level',
+        # 'swl',
+        # 'inf', 
+        # 'sfw',
+        # 'ecpc',
+        # 'tototf',
+        # 'tide_level',
         'fw_1018662',
         'fw_1018683',
         'fw_1019630',
@@ -473,7 +541,7 @@ if __name__=='__main__':
     NA_FILL_BY_INT = True
     NA_FILLING_INT = -9999
     
-    past_step_grid = [6]
+    past_step_grid = [6, 12, 18]
     
     df_step_search = pd.DataFrame(
         columns=['model', 'study', 'score'],
@@ -508,6 +576,8 @@ if __name__=='__main__':
             best_mdl, study = get_etr_optuna_kfold(X_tr, y_tr, X_val, y_val, N_TRIALS)
         elif model_nm == 'rf_kfold':
             best_mdl, study = get_rf_optuna_kfold(X_tr, y_tr, X_val, y_val, N_TRIALS)
+        elif model_nm == 'lgbm_kfold':
+            best_mdl, study = get_lgbm_optuna_kfold(X_tr, y_tr, X_val, y_val, N_TRIALS)
         else:
             raise NotImplementedError('Wrong model name to select')
             
