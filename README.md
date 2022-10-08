@@ -2,8 +2,25 @@
 Han River Water Level Prediction AI Competition for  Flood Safety of Paldang Dam hosted by Korea Hydro &amp; Nuclear Power Co., Ltd. at DACON
 
 ---
-## Experiment log
-### Submission date : 2022-08-11 14:43:25
+## Chronological Experiments Summary
+![submission_scores_lineplot](https://user-images.githubusercontent.com/50651319/194519092-2748cb82-4a99-4976-bc6c-503d868dda4e.png)
+1. RandomForest for noisy data and select a few fine features &rightarrow; A good start but RF is too slow
+2. LightGBM for much faster experiments with bigger data &rightarrow; Worse score. More data is needed
+3. Add a fine feature by auto nan handling XGBoost &rightarrow; It worked. More data need to be tested
+4. Put many more features &rightarrow; Much better validation score but overfitting. No careless features addition
+5. Feature selction by Spearman's $\rho$ &rightarrow; Overfitting. Monotonic relation is too simple to overcom overfitting?
+6. Select features with less monotonic by Spearman's $\rho$ &rightarrow; More overfitting. Find ways other than feature selection
+7. ExtraTreeRegressor's high randomness with a few good features &rightarrow; Low score but not overfitted. It's worth more trying
+8. ETR + features overfitted by RF &rightarrow; Overfitting. Structural difference might have not been enough
+9. Fill missing by simple integer with LightGBM &rightarrow; Overfitting. Data size might not enough to avoid overfitting with LightGBM
+10. A few good features + RF + simple int imputation &rightarrow; (Final best) There is little difference from submission #3
+11. Apply simple 4-fold validation for validation score reliability &rightarrow; Overfitting. Feature selection seems to be needed
+12. Change model from ETR to vanilla RF &rightarrow; Not a significant difference. Model structure is not a key
+13. Reduce the number of features &rightarrow; Overfitting lessened but no score improvement
+
+---
+## Experiment Log
+### Submission 1 date : 2022-08-11 14:43:25
 * Model : Sklearn's RandomForestRegressor
 * Dataset
   * Dimension : 2D(tabular) | 44 columns
@@ -20,9 +37,9 @@ Han River Water Level Prediction AI Competition for  Flood Safety of Paldang Dam
   * Features started with 'fw' show a similar temporal pattern to the target
   * Among the four 'fw' featuers, only two features show a small number of nan in both train and test period
 * Experiment review
-  * The score is not low enough. However, it is hard to widen the past time range for giving the model more data
+  * The score is not good enough. However, it is hard to widen the past time range for giving the model more data due to the running time and memory issue
 ---
-### Submission date : 2022-08-13 23:07:29
+### Submission 2 date : 2022-08-13 23:07:29
 * Model : LightGBM Regressor
 * Dataset
   * Dimension : 2D(tabular) | 50 columns
@@ -42,7 +59,7 @@ Han River Water Level Prediction AI Competition for  Flood Safety of Paldang Dam
   * LightGBM was worse than random forest in both validation and public score but speed was much faster
   * Due to the fast speed, hyperparameter tuning was done enough. Thus, more data seems to be needed to overcome the low scores.
 ---
-### Submission date : 2022-08-17 16:16:56	
+### Submission 3 date : 2022-08-17 16:16:56	
 * Model : XGBoostRandomForestRegressor
 * Dataset
   * Dimension : 2D(tabular) | 66 columns
@@ -69,7 +86,7 @@ Han River Water Level Prediction AI Competition for  Flood Safety of Paldang Dam
   * More data always works even with the missing values
   * XGBoost algorithm can handle the missing value quite well
 ---
-### Submission date : 2022-08-18 23:16:04
+### Submission 4 date : 2022-08-18 23:16:04
 * Model : XGBoostRandomForestRegressor
 * Dataset
   * Dimension : 2D(tabular) | 117 columns
@@ -93,7 +110,7 @@ Han River Water Level Prediction AI Competition for  Flood Safety of Paldang Dam
   * Validation and Public scores indicate overfitting
   * Careless feature addition was counterproductive
 ---
-### Submission date : 2022-08-21 19:42:42
+### Submission 5 date : 2022-08-21 19:42:42
 * Model : XGBoostRandomForestRegressor
 * Dataset
   * Dimension : 2D(tabular) | 65 columns
@@ -117,7 +134,7 @@ Han River Water Level Prediction AI Competition for  Flood Safety of Paldang Dam
   * Overfitting is suspected
   * Hard to infer the reason of overfit. Monotonic relation might be too simple to overcome overfit?
 ---
-### Submission date : 2022-08-22 00:31:09
+### Submission 6 date : 2022-08-22 00:31:09
 * Model : XGBoostRandomForestRegressor
 * Dataset
   * Dimension : 2D(tabular) | 49 columns
@@ -140,9 +157,9 @@ Han River Water Level Prediction AI Competition for  Flood Safety of Paldang Dam
 * Experiment review
   * More overfitting then add 'inf', 'tototf'
   * Except for the 'fw' features, features from the water level dataset caused overfitting
-  * If simple feature selection is not working, changing a model or handling missing values better might be a way
+  * If simple feature selection is not working, changing a model or better way to handle missing value might be a way
 ---
-### Submission date : 2022-08-22 23:51:26
+### Submission 7 date : 2022-08-22 23:51:26
 * Model : ExtraTreeRegressor
 * Dataset
   * Dimension : 2D(tabular) | 50 columns
@@ -164,7 +181,7 @@ Han River Water Level Prediction AI Competition for  Flood Safety of Paldang Dam
   * Not show a sign of overfitting
   * Slightly worse than Vanilla RF in Sklearn for both validation and public. However, the different scores might be a clue to the significantly different model structures of ETR, which makes it worth trying more
 ---
-### Submission date : 2022-08-25 23:35:10
+### Submission 8 date : 2022-08-25 23:35:10
 * Model : ExtraTreeRegressor
 * Dataset
   * Dimension : 2D(tabular) | 63 columns
@@ -187,7 +204,7 @@ Han River Water Level Prediction AI Competition for  Flood Safety of Paldang Dam
   * Overfitting is suspected
   * The gap between validation and public score is slightly better than the case of XGBRandomForest with all features, but hard to deny overfitting
 ---
-### Submission date : 2022-08-26 21:33:48
+### Submission 9 date : 2022-08-26 21:33:48
 * Model : LightGBM Regressor
 * Dataset
   * Dimension : 2D(tabular) | 117 columns
@@ -210,7 +227,7 @@ Han River Water Level Prediction AI Competition for  Flood Safety of Paldang Dam
   * Overfitting is suspected
   * LightGBM is known to tend to overfit easily if data is small, which is a suspected reason of overfit in this case
 ---
-### Submission date : 2022-08-27 19:19:35 [Final best]
+### Submission 10 date : 2022-08-27 19:19:35 [Final best]
 * Model : XGBoostRandomForestRegressor
 * Dataset
   * Dimension : 2D(tabular) | 57 columns
@@ -234,7 +251,7 @@ Han River Water Level Prediction AI Competition for  Flood Safety of Paldang Dam
   * Hard to determine whether the slightly score increase was due to the temporal widening of the dataset (selected year -> every year) or explicit missing value filling
   * The thing is that the validation score is hard to believe
 ---
-### Submission date : 2022-08-28 23:28:04
+### Submission 11 date : 2022-08-28 23:28:04
 * Model : Sklearn's RandomForestRegressor
 * Dataset
   * Dimension : 2D(tabular) | 63 columns
@@ -261,7 +278,7 @@ Han River Water Level Prediction AI Competition for  Flood Safety of Paldang Dam
   * Validation strategy might need temporal consideration
   * Using all features might be a crucial reason for raising overfitting
 ---
-### Submission date : 2022-08-29 02:37:54
+### Submission 12 date : 2022-08-29 02:37:54
 * Model : ExtraTreeRegressor
 * Dataset
   * Dimension : 2D(tabular) | 63 columns
@@ -289,3 +306,29 @@ Han River Water Level Prediction AI Competition for  Flood Safety of Paldang Dam
   * Validation strategy might need temporal consideration
   * Using all features might be a crucial reason for raising overfitting
   * Structural differences between tree-based models maybe not be the key. Probably the data has limited information to overcome the current score. Thus, extra data could be a solution
+---
+### Submission 13 date : 2022-09-01 01:43:31
+* Model : Sklearn's RandomForestRegressor
+* Dataset
+  * Dimension : 2D(tabular) | 63 columns
+  * Consider t ~ t-12(unit time) | best among 6, 12
+  * Selected features (3)
+    * 'fw_1018683', 'fw_1019630', 'fw_1018662' 
+  * Temporal range : 2012, 2013, 2016, 2017, 2018, 2020, 2022 (Selected by features' variance)
+    * Due to the memory limitation
+  * Note
+    * Fill missing every missing value as -9999
+    * Remove instance when there is nan in y
+* Target
+  * Four classes of y for t+1
+* Score
+  * Validation score : around 3.76 (RMSE/R^2)
+  * Public score : 3.5674 (RMSE/R^2)
+* Strategy
+  * Fill missing values with simple int(-9999) for using sklearn model
+  * Simple 4-fold validation (test set ratio 0.25) for more reliable validation score
+  * Simultaneous application of two efficient methods (RandomForest and k-fold validation) for overfitting
+* Experiment review
+  * It seems not overfit but both validation and public score is not good enough
+  * The better public score than validation is good evidence of avoiding overfitting
+  * Need to find a way for better score
